@@ -149,6 +149,7 @@ public class BentoGrapher {
         File home = new File(System.getProperty("user.home"));
         return new File(home, "Library/Application Support/Bento/bento.bentodb/Contents/Resources/Database");
     }
+
     /**
      * @param args the command line arguments
      */
