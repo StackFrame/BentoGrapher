@@ -1,0 +1,10 @@
+This is a quick hack for making charts with Bento. (Bento is a trademark of
+FileMaker, Inc.)
+
+Bento has no charting capability, so this reaches into the Bento database and
+builds charts from selected fields. It is very crude and just a quick hack. I
+might develop this some more to make it smarter and easier to use.
+
+Feel free to contact me at mcculley@stackframe.com if you have any questions.
+
+This code is licensed under v3.0 of the GPL.
