@@ -10,6 +10,7 @@
  */
 package com.stackframe.bentographer;
 
+import com.google.common.collect.ImmutableMap;
 import info.monitorenter.gui.chart.Chart2D;
 import info.monitorenter.gui.chart.IAxis;
 import info.monitorenter.gui.chart.ITrace2D;
@@ -25,7 +26,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 import javax.swing.Icon;
@@ -33,6 +33,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 /**
+ * A simple tool for making charts from Bento databases.
  *
  * @author mcculley
  */
@@ -43,7 +44,7 @@ public class BentoGrapher {
     }
 
     private static Map<String, Field> getFields(Connection connection, Library library) throws SQLException {
-        Map<String, Field> fields = new HashMap<String, Field>();
+        ImmutableMap.Builder<String, Field> fields = new ImmutableMap.Builder();
         PreparedStatement ps = connection.prepareStatement("SELECT gn_label AS label, gn_name AS column, gn_typeName AS type FROM gn_field WHERE gn_domain=?");
         try {
             ps.setInt(1, library.domain);
@@ -62,7 +63,7 @@ public class BentoGrapher {
             ps.close();
         }
 
-        return fields;
+        return fields.build();
     }
 
     private static String select(Collection<String> libraries, String message, String title) {
@@ -76,7 +77,7 @@ public class BentoGrapher {
     }
 
     private static Map<String, Library> getLibraries(Connection connection) throws SQLException {
-        Map<String, Library> libraries = new HashMap<String, Library>();
+        ImmutableMap.Builder<String, Library> libraries = new ImmutableMap.Builder();
         PreparedStatement ps = connection.prepareStatement("SELECT gn_sourceitem.gn_label AS label, gn_domain.gn_name AS name, gn_domain.gnpk AS domain FROM gn_sourceitem INNER JOIN gn_domain ON (gn_sourceitem.gn_domain = gn_domain.gnpk) where gn_sourceitem.gn_parent is null");
         try {
             ResultSet rs = ps.executeQuery();
@@ -94,11 +95,11 @@ public class BentoGrapher {
             ps.close();
         }
 
-        return libraries;
+        return libraries.build();
     }
 
     private static Map<Number, Number> getData(Connection connection, Library library, Field x, Field y) throws SQLException {
-        Map<Number, Number> data = new TreeMap<Number, Number>();
+        Map<Number, Number> data = new TreeMap();
         PreparedStatement ps = connection.prepareStatement(String.format("SELECT %s AS x, %s AS y FROM %s WHERE %s IS NOT NULL", x.column, y.column, library.tableName(), y.column));
         try {
             ResultSet rs = ps.executeQuery();
@@ -116,7 +117,7 @@ public class BentoGrapher {
         }
 
 
-        return data;
+        return ImmutableMap.copyOf(data);
     }
 
     private static void makeGraph(Connection connection, Library library, Field x, Field y) throws SQLException {
@@ -144,13 +145,16 @@ public class BentoGrapher {
         frame.setVisible(true);
     }
 
+    private static File findDatabase() {
+        File home = new File(System.getProperty("user.home"));
+        return new File(home, "Library/Application Support/Bento/bento.bentodb/Contents/Resources/Database");
+    }
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) throws Exception {
         Class.forName("org.sqlite.JDBC");
-        File home = new File(System.getProperty("user.home"));
-        File db = new File(home, "Library/Application Support/Bento/bento.bentodb/Contents/Resources/Database");
+        File db = findDatabase();
         Connection connection = openConnection(db);
         try {
             Map<String, Library> libraries = getLibraries(connection);
