@@ -229,6 +229,8 @@ public class BentoGrapher {
             // FIXME: Make the rendering of dates smart. It looks like date is seconds since 1/1/2001 and is defined by Core Data.
             // FIXME: Make the graphs printable.
             // FIXME: Make it easy to dynamically add more Y values to same graph.
+            // FIXME: Package up a binary that is easy to run.
+            // FIXME: Publish some screenshots to make it easier to understand what this is for.
 
             makeGraph(connection, library, x, y);
         } finally {
