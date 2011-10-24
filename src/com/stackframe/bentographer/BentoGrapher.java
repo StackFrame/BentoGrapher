@@ -210,6 +210,8 @@ public class BentoGrapher {
             Comparator<Field> dateModifiedComparator = makeTypeComparator("com.filemaker.bento.field.private.timestamp.dateModified");
             Ordering<Field> xOrdering = Ordering.from(dateComparator).compound(dateCreatedComparator).compound(dateModifiedComparator);
             Collection<Field> sortedXFields = xOrdering.immutableSortedCopy(fields);
+
+            // FIXME: This depends on the implemenation of Field.toString() returning the type name. It should use a Renderer or something.
             final Field x = (Field) select(sortedXFields, "Choose X", "X");
 
             fields = Collections2.filter(fields, new Predicate<Field>() {
@@ -223,6 +225,11 @@ public class BentoGrapher {
             Ordering<Field> yOrdering = Ordering.from(Collections.reverseOrder(dateModifiedComparator)).compound(Collections.reverseOrder(dateCreatedComparator)).compound(Collections.reverseOrder(dateComparator));
             Collection<Field> sortedYFields = yOrdering.immutableSortedCopy(fields);
             Field y = (Field) select(sortedYFields, "Choose Y", "Y");
+
+            // FIXME: Make the rendering of dates smart. It looks like date is seconds since 1/1/2001 and is defined by Core Data.
+            // FIXME: Make the graphs printable.
+            // FIXME: Make it easy to dynamically add more Y values to same graph.
+
             makeGraph(connection, library, x, y);
         } finally {
             connection.close();
